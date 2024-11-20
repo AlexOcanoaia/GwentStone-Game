@@ -5,6 +5,17 @@ import java.util.ArrayList;
 public class Hero extends Card{
     static int health = 30;
 
+    public Hero() {
+        
+    }
+
+    public Hero(int mana, String description, String colors, String name) {
+        this.setMana(mana);
+        this.setDescription(description);
+        this.setColors(colors);
+        this.setName(name);
+    }
+
     public void useAbility(Minion minion, ArrayList<Minion> list) {
         switch (this.getName()) {
             case "Lord Royce":

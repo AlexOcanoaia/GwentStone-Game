@@ -3,6 +3,17 @@ package org.poo.card;
 public class Minion extends Card{
     private int health;
     private int attackDamage;
+    private boolean frozen;
+
+
+    public Minion(int mana, int health, int attackDamage, String description, String colors, String name) {
+        this.setMana(mana);
+        this.setHealth(health);
+        this.setAttackDamage(attackDamage);
+        this.setDescription(description);
+        this.setColors(colors);
+        this.setName(name);
+    }
 
     public void setHealth(int health) {
         this.health = health;
@@ -18,6 +29,18 @@ public class Minion extends Card{
 
     public int getAttackDamage() {
         return attackDamage;
+    }
+
+    public void setFrozen() {
+        frozen = true;
+    }
+
+    public void unsetFrozen() {
+        frozen = false;
+    }
+
+    public boolean isFrozen() {
+        return this.frozen;
     }
 
     public void useAbility(Minion minion) {
