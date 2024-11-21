@@ -9,11 +9,15 @@ public class Hero extends Card{
         
     }
 
-    public Hero(int mana, String description, String colors, String name) {
+    public Hero(int mana, String description, ArrayList<String> colors, String name) {
         this.setMana(mana);
         this.setDescription(description);
         this.setColors(colors);
         this.setName(name);
+    }
+
+    public static int getHealth() {
+        return health;
     }
 
     public void useAbility(Minion minion, ArrayList<Minion> list) {

@@ -1,9 +1,11 @@
 package org.poo.card;
 
+import java.util.ArrayList;
+
 public class Card {
     private int mana;
     private String description;
-    private String colors;
+    private ArrayList<String> colors;
     private String name;
 
     public void setMana(int mana) {
@@ -22,11 +24,11 @@ public class Card {
         return description;
     }
 
-    public void setColors(String colors) {
-        this.colors = colors;
+    public void setColors(ArrayList<String> colors) {
+       this.colors = colors;
     }
 
-    public String getColors() {
+    public ArrayList<String> getColors() {
         return colors;
     }
 

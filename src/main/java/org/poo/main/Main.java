@@ -5,13 +5,18 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
+import org.poo.fileio.ActionsInput;
+import org.poo.fileio.GameInput;
 import org.poo.fileio.Input;
+import org.poo.game.Game;
+import org.poo.output.Output;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -86,6 +91,22 @@ public final class Main {
          * output.add(objectNode);
          *
          */
+
+        ArrayList<GameInput> games = inputData.getGames();
+        // for (int i = 0; i < games.size(); i++) {
+        //     Game game = new Game();
+        //     game.startGame(inputData, i);
+        //     Output write = new Output();
+        //     write.output(inputData, i, output);
+        // }
+           Game game = new Game();
+           game.startGame(inputData, 0);
+           game.startTurn();
+           game.output(inputData, 0, output);
+        //    Output write = new Output();
+        //    write.output(inputData, 0, output);  
+
+        
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);

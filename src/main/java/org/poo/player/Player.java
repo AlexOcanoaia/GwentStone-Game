@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.poo.card.Hero;
 import org.poo.card.Minion;
+import org.poo.fileio.CardInput;
 
 public class Player {
     private int mana = 0;
@@ -82,7 +83,26 @@ public class Player {
         return hero;
     }
 
-    public void shuffleDeck(int seed) {
-        Collections.shuffle(deck, new Random(seed));
+    public void initializeDecks(ArrayList<ArrayList<CardInput>> cards) {
+        for (int i = 0; i < cards.size(); i++) {
+            ArrayList<Minion> row = new ArrayList<>();
+            for (int j = 0; j < cards.get(i).size(); j++) {
+                int mana = cards.get(i).get(j).getMana();
+                int health = cards.get(i).get(j).getHealth();
+                int attackDamage =  cards.get(i).get(j).getAttackDamage();
+                String description =  cards.get(i).get(j).getDescription();
+                ArrayList<String> colors =  cards.get(i).get(j).getColors();
+                String name =  cards.get(i).get(j).getName();
+                row.add(new Minion(mana, health, attackDamage, description, colors, name));
+            }
+            decks.add(row);
+        }
+    } 
+
+    public void initializeHero(CardInput heroCard) {
+        this.getHero().setMana(heroCard.getMana());
+        this.getHero().setDescription(heroCard.getDescription());
+        this.getHero().setColors(heroCard.getColors());
+        this.getHero().setName(heroCard.getName());
     }
 }

@@ -1,12 +1,14 @@
 package org.poo.card;
 
+import java.util.ArrayList;
+
 public class Minion extends Card{
     private int health;
     private int attackDamage;
     private boolean frozen;
 
 
-    public Minion(int mana, int health, int attackDamage, String description, String colors, String name) {
+    public Minion(int mana, int health, int attackDamage, String description, ArrayList<String> colors, String name) {
         this.setMana(mana);
         this.setHealth(health);
         this.setAttackDamage(attackDamage);
