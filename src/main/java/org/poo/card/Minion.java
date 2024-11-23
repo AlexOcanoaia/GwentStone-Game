@@ -8,13 +8,14 @@ public class Minion extends Card{
     private boolean frozen;
 
 
-    public Minion(int mana, int health, int attackDamage, String description, ArrayList<String> colors, String name) {
+    public Minion(int mana, int health, int attackDamage, String description, ArrayList<String> colors, String name, boolean frozen) {
         this.setMana(mana);
         this.setHealth(health);
         this.setAttackDamage(attackDamage);
         this.setDescription(description);
         this.setColors(colors);
         this.setName(name);
+        this.frozen = frozen;
     }
 
     public void setHealth(int health) {

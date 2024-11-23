@@ -6,9 +6,13 @@ import org.poo.card.Minion;
 import org.poo.player.Player;
 
 public class Table {
-    ArrayList<ArrayList<Minion>> table = new ArrayList<>();
+    private ArrayList<ArrayList<Minion>> table = new ArrayList<>();
     final int number_rows = 4;
     final int number_columns = 5;
+
+    public ArrayList<ArrayList<Minion>> getTable() {
+        return table;
+    }
 
     public void initializeTable() {
         for (byte i = 0; i < number_rows; i++) {
@@ -29,25 +33,49 @@ public class Table {
         return -1;
     }
 
-    public void addCardtoTable(Minion minion, int x, int y, Player player) {
+    public String addCardtoTable(Minion minion, Player player) {
         String name = minion.getName();
         if (player.getMana() < minion.getMana()) {
-            System.out.println("There isn't enough mana");
-            return;
+            return "Not enough mana to place card on table.";
         }
         if (name.equals("Sentinel") || name.equals("Berserker") || name.equals("The Cursed One") || name.equals("Disciple")) {
             if (player.getId() == 1) {
-                table.get(0).set(findSpot(0), minion);
+                if (findSpot(0) != -1) {
+                    table.get(0).set(findSpot(0), minion);
+                    player.setMana(player.getMana() - minion.getMana());
+                    return null;
+                } else {
+                    return "Cannot place card on table since row is full.";
+                }
             } else {
-                table.get(3).set(findSpot(3), minion);
+                if (findSpot(3) != -1) {
+                    table.get(3).set(findSpot(3), minion);
+                    player.setMana(player.getMana() - minion.getMana());
+                    return null;
+                } else {
+                    return "Cannot place card on table since row is full.";
+                }
             }
         } else if (name.equals("Goliath") || name.equals("Warden") || name.equals("The Ripper") || name.equals("Miraj")) {
             if (player.getId() == 1) {
-                table.get(1).set(findSpot(1), minion);
+                if (findSpot(1) != -1) {
+                    table.get(1).set(findSpot(1), minion);
+                    player.setMana(player.getMana() - minion.getMana());
+                    return null;
+                } else {
+                    return "Cannot place card on table since row is full.";
+                }
             } else {
-                table.get(2).set(findSpot(2), minion);
+                if (findSpot(2) != -1) {
+                    table.get(2).set(findSpot(2), minion);
+                    player.setMana(player.getMana() - minion.getMana());
+                    return null;
+                } else {
+                    return "Cannot place card on table since row is full.";
+                }
             }
         }
+        return null;
     }
 
     public void eliminateCard(Minion minion) {
@@ -73,6 +101,35 @@ public class Table {
                 Minion tmp = current;
                 current = next;
                 next = tmp;
+            }
+        }
+    }
+
+    public void showCards() {
+        for (int i = 0; i < number_rows; i++) {
+            for (int j = 0; j < number_columns; j++) {
+                if (table.get(i).get(j) != null) {
+                    System.out.println("The minion at row " + i + " and column " + j + " is " + table.get(i).get(j).getName());
+                }
+            }
+        }
+    }
+
+    public void unfrozenMinions(int id) {
+        int start;
+        int max;
+        if (id == 1) {
+           start = 0;
+           max = 2;
+        } else {
+            start = 2;
+            max = 4;
+        }
+        for (int i = start; i < max; i++) {
+            for (int j = 0; j < number_columns; j++) {
+                if (table.get(i).get(j) != null) {
+                    table.get(i).get(j).unsetFrozen();
+                }
             }
         }
     }

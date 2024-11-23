@@ -1,8 +1,6 @@
 package org.poo.player;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 
 import org.poo.card.Hero;
 import org.poo.card.Minion;
@@ -15,8 +13,29 @@ public class Player {
     private int cards_in_deck;
     ArrayList<ArrayList<Minion>> decks = new ArrayList<>();
     ArrayList<Minion> deck = new ArrayList<>();
-    ArrayList<Minion> hand = new ArrayList<>();
+    private ArrayList<Minion> hand = new ArrayList<>();
     Hero hero = new Hero();
+    private int doneRound = 0;
+
+    public void setDoneRound(int doneRound) {
+        this.doneRound = doneRound;
+    }
+
+    public int getDoneRound() {
+        return doneRound;
+    }
+
+    public void setHand(ArrayList<Minion> hand) {
+        this.hand = hand;
+    }
+
+    public ArrayList<Minion> getHand() {
+        return hand;
+    }
+
+    public void removeCard(int index) {
+        hand.remove(index);
+    }
 
     public void setMana(int mana) {
         this.mana = mana;
@@ -93,7 +112,7 @@ public class Player {
                 String description =  cards.get(i).get(j).getDescription();
                 ArrayList<String> colors =  cards.get(i).get(j).getColors();
                 String name =  cards.get(i).get(j).getName();
-                row.add(new Minion(mana, health, attackDamage, description, colors, name));
+                row.add(new Minion(mana, health, attackDamage, description, colors, name, false));
             }
             decks.add(row);
         }

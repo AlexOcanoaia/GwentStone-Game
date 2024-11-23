@@ -9,6 +9,7 @@ import org.poo.card.Minion;
 import org.poo.fileio.ActionsInput;
 import org.poo.fileio.Input;
 import org.poo.player.Player;
+import org.poo.table.Table;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,11 +17,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Game {
     private int number_of_turn = 1;
-    private int starting_player;
+    private int currentPlayer;
     private Player player1 = new Player();
     private Player player2 = new Player();
     ObjectMapper map = new ObjectMapper();
-    
+    Table table = new Table();
+
     public void shuffleDeck(Player player, long seed) {
         Collections.shuffle(player.getDeck(), new Random(seed));
     }
@@ -46,19 +48,76 @@ public class Game {
         player1.initializeHero(input.getGames().get(numberOfGames).getStartGame().getPlayerOneHero());
         player2.initializeHero(input.getGames().get(numberOfGames).getStartGame().getPlayerTwoHero());
 
-        starting_player = input.getGames().get(numberOfGames).getStartGame().getStartingPlayer();
+        currentPlayer = input.getGames().get(numberOfGames).getStartGame().getStartingPlayer();
+        player1.setId(1);
+        player2.setId(2);
     }
 
-    public void startTurn() {
-        if (player1.getDeck() != null) {
+    public void startRound() {
+        if (player1.getDeck().size() != 0) {
             player1.addCardinHand(player1.getDeck().get(0));
         }
-        if (player2.getDeck() != null) {
+        if (player2.getDeck().size() != 0) {
             player2.addCardinHand(player2.getDeck().get(0));
         }
         player1.setMana(player1.getMana() + number_of_turn);
         player2.setMana(player2.getMana() + number_of_turn);
         number_of_turn++;
+    }
+
+    public void endTurn() {
+        table.unfrozenMinions(currentPlayer);
+        if (currentPlayer == 1) {
+            player1.setDoneRound(1);
+            currentPlayer = 2;
+        } else {
+            player2.setDoneRound(1);
+            currentPlayer = 1;
+        }
+        if (player1.getDoneRound() == 1 &&
+            player2.getDoneRound() == 1) {
+            System.out.println("Done round");
+            player1.setDoneRound(0);
+            player2.setDoneRound(0);
+            startRound();
+        }
+    }
+
+    public void placeCard(int index, ArrayNode output) {
+        ObjectNode tmp = map.createObjectNode();
+        tmp.put("command", "placeCard");
+        tmp.put("handIdx", index);
+        String result = null;
+        if (currentPlayer == 1) {
+            ArrayList<Minion> cardsList = player1.getHand();
+            if (index >= cardsList.size() || index < 0) {
+                System.out.println("Invalid index");
+            } else {
+                System.out.println("the index 1 is " + index);
+
+                result = table.addCardtoTable(cardsList.get(index), player1);
+                if (result == null) {
+                    cardsList.remove(index);
+                    player1.setHand(cardsList);
+                }
+            }
+        } else {
+            ArrayList<Minion> cardsList = player2.getHand();
+            if (index >= cardsList.size() || index < 0) {
+                System.out.println("Invalid index");
+            } else {
+                result = table.addCardtoTable(cardsList.get(index), player2);
+                
+                if (result == null) {
+                    cardsList.remove(index);
+                    player2.setHand(cardsList);
+                }
+            }
+        }
+        if (result != null) {
+            tmp.put("error", result);
+            output.add(tmp);
+        }
     }
 
     public void getPlayerDeck(int index, final ArrayNode output) {
@@ -119,13 +178,89 @@ public class Game {
     public void getPlayerTurn(ArrayNode output) {
         ObjectNode node = map.createObjectNode();
         node.put("command", "getPlayerTurn");
-        node.put("output", starting_player);
+        node.put("output", currentPlayer);
         output.add(node);
     }
 
+    public void getCardsInHand(int index, ArrayNode output) {
+        ArrayList<Minion> deck = new ArrayList<>();
+        System.out.println("The index cardinHand is " + index);
+        if (index == 1) {
+            deck = player1.getHand();
+        } else {
+            deck = player2.getHand();
+        }
+        ObjectNode tmp = map.createObjectNode();
+        tmp.put("command", "getCardsInHand");
+        tmp.put("playerIdx", index);
+        ArrayNode array = map.createArrayNode();
+        for (int i = 0; i < deck.size(); i++) {
+            ObjectNode node = map.createObjectNode();
+            node.put("mana", deck.get(i).getMana());
+            node.put("attackDamage", deck.get(i).getAttackDamage());
+            node.put("health", deck.get(i).getHealth());
+            node.put("description", deck.get(i).getDescription());
+            ArrayNode arrayColors = map.createArrayNode();
+            for (int j = 0; j < deck.get(i).getColors().size(); j++) {
+                arrayColors.add(deck.get(i).getColors().get(j));
+            }
+            node.set("colors", arrayColors);
+            node.put("name", deck.get(i).getName());
+            array.add(node);
+        }
+        tmp.set("output", array);
+        output.add(tmp);
+    }
+
+    public void getPlayerMana(int index, ArrayNode output) {
+        ObjectNode node = map.createObjectNode();
+        node.put("command", "getPlayerMana");
+        node.put("playerIdx", index);
+        if (index == 1) {
+            node.put("output", player1.getMana());
+        } else {
+            node.put("output", player2.getMana());
+        }
+        output.add(node);
+    }
+
+    public void getCardsOnTable(ArrayNode output) {
+        ObjectNode tmp = map.createObjectNode();
+        tmp.put("command", "getCardsOnTable");
+        ArrayNode array = map.createArrayNode();
+        for (int i = 3; i >= 0; i--) {
+            ArrayNode rowArray = map.createArrayNode();
+            for (int j = 0; j < 5; j++) {
+                Minion aux = table.getTable().get(i).get(j);
+                if (aux != null) {
+                    ObjectNode node = map.createObjectNode();
+                    node.put("mana", aux.getMana());
+                    node.put("attackDamage", aux.getAttackDamage());
+                    node.put("health", aux.getHealth());
+                    node.put("description", aux.getDescription());
+                    ArrayNode arrayColors = map.createArrayNode();
+                    for (int k = 0; k < aux.getColors().size(); k++) {
+                        arrayColors.add(aux.getColors().get(k));
+                    }
+                    node.set("colors", arrayColors);
+                    node.put("name", aux.getName());
+                    rowArray.add(node);
+                }
+            }
+            array.add(rowArray);
+        }
+        tmp.set("output", array);
+        output.add(tmp);
+    }
+
     public void output(Input input, int numberOfGame, final ArrayNode output) {
+        table.initializeTable();
         ArrayList<ActionsInput> actions = input.getGames().get(numberOfGame).getActions();
         for (int i = 0; i < actions.size(); i++) {
+            System.out.println(actions.get(i).getCommand());
+            if (actions.get(i).getCommand().equals("placeCard") == true) {
+                System.out.println("Is " + actions.get(i).getHandIdx());
+            }
             switch (actions.get(i).getCommand()) {
                 case "getPlayerDeck":
                     int index = actions.get(i).getPlayerIdx();
@@ -137,8 +272,29 @@ public class Game {
                     break;
                 case "getPlayerTurn":
                     getPlayerTurn(output);
-                    break; 
+                    break;
+                case "endPlayerTurn":
+                    endTurn();
+                    break;
+                case "placeCard":
+                    System.out.println("The current player is " + currentPlayer);
+                    int indexHand = actions.get(i).getHandIdx();
+                    System.out.println("The indexHand is " + indexHand);
+                    placeCard(indexHand, output);
+                    break;
+                case "getCardsInHand":
+                    int indexCards = actions.get(i).getPlayerIdx();
+                    getCardsInHand(indexCards, output);
+                    break;
+                case "getPlayerMana":
+                    int indexMana = actions.get(i).getPlayerIdx();
+                    getPlayerMana(indexMana, output);
+                    break;
+                case "getCardsOnTable":
+                    getCardsOnTable(output);
+                    break;
             }
         }
+        System.out.println("\n");
     }
 }

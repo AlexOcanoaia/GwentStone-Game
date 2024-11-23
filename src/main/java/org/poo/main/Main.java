@@ -91,22 +91,14 @@ public final class Main {
          * output.add(objectNode);
          *
          */
-
         ArrayList<GameInput> games = inputData.getGames();
-        // for (int i = 0; i < games.size(); i++) {
-        //     Game game = new Game();
-        //     game.startGame(inputData, i);
-        //     Output write = new Output();
-        //     write.output(inputData, i, output);
-        // }
-           Game game = new Game();
-           game.startGame(inputData, 0);
-           game.startTurn();
-           game.output(inputData, 0, output);
-        //    Output write = new Output();
-        //    write.output(inputData, 0, output);  
-
-        
+        for (int i = 0; i < games.size(); i++) {
+            Game game = new Game();
+            game.startGame(inputData, 0);
+            game.startRound();
+           
+            game.output(inputData, 0, output);
+        }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
