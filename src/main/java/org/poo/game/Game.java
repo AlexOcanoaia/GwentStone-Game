@@ -76,9 +76,10 @@ public class Game {
         }
         if (player1.getDoneRound() == 1 &&
             player2.getDoneRound() == 1) {
-            System.out.println("Done round");
+                
             player1.setDoneRound(0);
             player2.setDoneRound(0);
+            table.setMinions();
             startRound();
         }
     }
@@ -93,8 +94,6 @@ public class Game {
             if (index >= cardsList.size() || index < 0) {
                 System.out.println("Invalid index");
             } else {
-                System.out.println("the index 1 is " + index);
-
                 result = table.addCardtoTable(cardsList.get(index), player1);
                 if (result == null) {
                     cardsList.remove(index);
@@ -228,7 +227,7 @@ public class Game {
         ObjectNode tmp = map.createObjectNode();
         tmp.put("command", "getCardsOnTable");
         ArrayNode array = map.createArrayNode();
-        for (int i = 3; i >= 0; i--) {
+        for (int i = 0; i < 4; i++) {
             ArrayNode rowArray = map.createArrayNode();
             for (int j = 0; j < 5; j++) {
                 Minion aux = table.getTable().get(i).get(j);
@@ -250,6 +249,52 @@ public class Game {
             array.add(rowArray);
         }
         tmp.set("output", array);
+        output.add(tmp);
+    }
+
+    public void checkAttack(int x1, int y1, int x2, int y2, ArrayNode output) {
+        System.out.println("This is the table");
+        // table.showCards(output);
+        String result = table.attackCard(x1, y1, x2, y2);
+        if (result != null) {
+            ObjectNode tmp = map.createObjectNode();
+            tmp.put("command", "cardUsesAttack");
+            ObjectNode node1 = map.createObjectNode();
+            node1.put("x", x1);
+            node1.put("y", y1);
+            tmp.set("cardAttacker", node1);
+            ObjectNode node2 = map.createObjectNode();
+            node2.put("x", x2);
+            node2.put("y", y2);
+            tmp.set("cardAttacked", node2);
+            tmp.put("error", result);
+            output.add(tmp);
+        }
+    }
+
+    public void getCardAtPosition(int x, int y, ArrayNode output) {
+        Minion aux = table.getCard(x, y);
+        ObjectNode tmp = map.createObjectNode();
+        tmp.put("command", "getCardAtPosition");
+        ObjectNode node1 = map.createObjectNode();
+        tmp.put("x", x);
+        tmp.put("y", y);
+        if (aux != null) {
+            ObjectNode node = map.createObjectNode();
+            node.put("mana", aux.getMana());
+            node.put("attackDamage", aux.getAttackDamage());
+            node.put("health", aux.getHealth());
+            node.put("description", aux.getDescription());
+            ArrayNode arrayColors = map.createArrayNode();
+            for (int k = 0; k < aux.getColors().size(); k++) {
+                arrayColors.add(aux.getColors().get(k));
+            }
+            node.set("colors", arrayColors);
+            node.put("name", aux.getName());
+            tmp.set("output", node);
+        } else {
+            tmp.put("output", "No card available at that position.");
+        }
         output.add(tmp);
     }
 
@@ -277,9 +322,7 @@ public class Game {
                     endTurn();
                     break;
                 case "placeCard":
-                    System.out.println("The current player is " + currentPlayer);
                     int indexHand = actions.get(i).getHandIdx();
-                    System.out.println("The indexHand is " + indexHand);
                     placeCard(indexHand, output);
                     break;
                 case "getCardsInHand":
@@ -292,6 +335,18 @@ public class Game {
                     break;
                 case "getCardsOnTable":
                     getCardsOnTable(output);
+                    break;
+                case "cardUsesAttack":
+                    int x1 = actions.get(i).getCardAttacker().getX();
+                    int y1 = actions.get(i).getCardAttacker().getY();
+                    int x2 = actions.get(i).getCardAttacked().getX();
+                    int y2 = actions.get(i).getCardAttacked().getY();
+                    checkAttack(x1, y1, x2, y2, output);
+                    break;
+                case "getCardAtPosition":
+                    int x = actions.get(i).getX();
+                    int y = actions.get(i).getY();
+                    getCardAtPosition(x, y, output);
                     break;
             }
         }

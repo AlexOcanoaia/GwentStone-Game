@@ -6,7 +6,7 @@ public class Minion extends Card{
     private int health;
     private int attackDamage;
     private boolean frozen;
-
+    private int doneAttack = 0;
 
     public Minion(int mana, int health, int attackDamage, String description, ArrayList<String> colors, String name, boolean frozen) {
         this.setMana(mana);
@@ -16,6 +16,14 @@ public class Minion extends Card{
         this.setColors(colors);
         this.setName(name);
         this.frozen = frozen;
+    }
+
+    public void setDoneAttack(int doneAttack) {
+        this.doneAttack = doneAttack;
+    }
+
+    public int getDoneAttack() {
+        return doneAttack;
     }
 
     public void setHealth(int health) {
@@ -44,6 +52,14 @@ public class Minion extends Card{
 
     public boolean isFrozen() {
         return this.frozen;
+    }
+
+    public boolean isTank() {
+        if (this.getName().equals("Goliath") 
+        || this.getName().equals("Warden") ) {
+            return true;
+        }
+        return false;
     }
 
     public void useAbility(Minion minion) {

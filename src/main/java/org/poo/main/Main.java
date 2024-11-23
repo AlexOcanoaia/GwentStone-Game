@@ -96,7 +96,6 @@ public final class Main {
             Game game = new Game();
             game.startGame(inputData, 0);
             game.startRound();
-           
             game.output(inputData, 0, output);
         }
 
