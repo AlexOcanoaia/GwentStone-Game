@@ -70,10 +70,12 @@ public class Game {
         table.unfrozenMinions(currentPlayer);
         if (currentPlayer == 1) {
             player1.setDoneRound(1);
+            player1.getHero().setDoneAttack(0);
             table.setMinions(1);
             currentPlayer = 2;
         } else {
             player2.setDoneRound(1);
+            player2.getHero().setDoneAttack(0);
             table.setMinions(2);
             currentPlayer = 1;
         }
@@ -377,6 +379,23 @@ public class Game {
         }
     }
 
+    public void useHeroAbility(int row, ArrayNode output) {
+        String result = null;
+        if (currentPlayer == 1) {
+            result = table.heroAbility(player1, row);
+        } else {
+            result = table.heroAbility(player2, row);
+        }
+        if (result != null) {
+            ObjectNode tmp = map.createObjectNode();
+            tmp.put("command", "useHeroAbility");
+            tmp.put("affectedRow", row);
+            tmp.put("error", result);
+            output.add(tmp);
+        }
+    }
+
+
     public void output(Input input, int numberOfGame, final ArrayNode output) {
         table.initializeTable();
         ArrayList<ActionsInput> actions = input.getGames().get(numberOfGame).getActions();
@@ -441,6 +460,14 @@ public class Game {
                         useAttackHero(newX, newY, output);
                     }
                     break;
+                case "getFrozenCardsOnTable":
+                    table.getFrozenCardsOnTable(output);
+                    break;
+                case "useHeroAbility":
+                    int row = actions.get(i).getAffectedRow();
+                    useHeroAbility(row, output);
+                    break;
+                
             }
         }
         System.out.println("\n");

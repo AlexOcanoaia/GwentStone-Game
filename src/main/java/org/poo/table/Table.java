@@ -2,10 +2,13 @@ package org.poo.table;
 
 import java.util.ArrayList;
 
+import org.poo.card.Hero;
 import org.poo.card.Minion;
 import org.poo.player.Player;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Table {
     private ArrayList<ArrayList<Minion>> table = new ArrayList<>();
@@ -223,7 +226,81 @@ public class Table {
         return null;
     }
 
+    public void getFrozenCardsOnTable(ArrayNode output) {
+        ObjectMapper tmpMap = new ObjectMapper();
+        ObjectNode tmp = tmpMap.createObjectNode();
+        ArrayNode result = tmpMap.createArrayNode();
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
+                Minion aux = getCard(i, j);
+                if (aux != null && aux.isFrozen() == true) {
+                    ObjectNode node = tmpMap.createObjectNode();
+                    node.put("mana", aux.getMana());
+                    node.put("attackDamage", aux.getAttackDamage());
+                    node.put("health", aux.getHealth());
+                    node.put("description", aux.getDescription());
+                    ArrayNode arrayColors = tmpMap.createArrayNode();
+                    for (int k = 0; k < aux.getColors().size(); k++) {
+                        arrayColors.add(aux.getColors().get(k));
+                    }
+                    node.set("colors", arrayColors);
+                    node.put("name", aux.getName());
+                    result.add(node);
+                }
+            }
+        }
+        tmp.put("command", "getFrozenCardsOnTable");
+        tmp.set("output", result);
+        output.add(tmp);
+    }
 
+    public ArrayList<Minion> getRow(int row) {
+        return table.get(row);
+    }
+
+    public String heroAbility(Player player, int row) {
+        Hero hero = player.getHero();
+        if (player.getMana() < hero.getMana()) {
+            return "Not enough mana to use hero's ability.";
+        }
+        
+        if (hero.getDoneAttack() == 1) {
+            return "Hero has already attacked this turn.";
+        }
+
+        String name = hero.getName();
+        if (name.equals("Lord Royce") == true ||
+        name.equals("Empress Thorina") == true) {
+            if (player.getId() == 1) {
+                if (row == 2 || row == 3) {
+                    return "Selected row does not belong to the enemy.";
+                }
+            } else {
+                if (row == 0 || row == 1) {
+                    return "Selected row does not belong to the enemy.";
+                }
+            }
+        }
+
+        if (name.equals("General Kocioraw") == true ||
+        name.equals("King Mudface") == true) {
+            if (player.getId() == 1) {
+                if (row == 0 || row == 1) {
+                    return "Selected row does not belong to the current player.";
+                }
+            } else {
+                if (row == 2 || row == 3) {
+                    return "Selected row does not belong to the current player.";
+                }
+            }
+        }
+
+        ArrayList<Minion> minions = getRow(row);
+        hero.useAbility(minions);
+        player.setMana(player.getMana() - hero.getMana());
+        hero.setDoneAttack(1);
+        return null;
+    }
 
     public void showCards(ArrayNode output) {
         for (int i = 0; i < number_rows; i++) {
