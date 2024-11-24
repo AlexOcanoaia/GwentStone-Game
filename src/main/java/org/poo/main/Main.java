@@ -93,9 +93,9 @@ public final class Main {
         for (int i = 0; i < games.size(); i++) {
             Game game = new Game();
             game.getStatistics().setNumberGamesplayed(games.size());
-            game.startGame(inputData, 0);
+            game.startGame(inputData, i);
             game.startRound();
-            game.output(inputData, 0, output);
+            game.output(inputData, i, output);
         }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();

@@ -8,34 +8,70 @@ public class Card {
     private ArrayList<String> colors;
     private String name;
 
-    public void setMana(int mana) {
+    /**
+     *
+     * @param mana
+     * set the mana field
+     */
+    public void setMana(final int mana) {
         this.mana = mana;
     }
 
+    /**
+     *
+     * @return mana
+     */
     public int getMana() {
         return mana;
     }
 
-    public void setDescription(String description) {
+    /**
+     *
+     * @param description
+     * set the description field
+     */
+    public void setDescription(final String description) {
         this.description = description;
     }
 
+    /**
+     *
+     * @return description
+     */
     public String getDescription() {
         return description;
     }
 
-    public void setColors(ArrayList<String> colors) {
+    /**
+     *
+     * @param colors
+     * set the colors field
+     */
+    public void setColors(final ArrayList<String> colors) {
        this.colors = colors;
     }
 
+    /**
+     *
+     * @return colors
+     */
     public ArrayList<String> getColors() {
         return colors;
     }
 
-    public void setName(String name) {
+    /**
+     *
+     * @param name
+     * set the name field
+     */
+    public void setName(final String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return name
+     */
     public String getName() {
         return name;
     }

@@ -2,13 +2,15 @@ package org.poo.card;
 
 import java.util.ArrayList;
 
-public class Minion extends Card{
+public class Minion extends Card {
     private int health;
     private int attackDamage;
     private boolean frozen;
     private int doneAttack = 0;
 
-    public Minion(int mana, int health, int attackDamage, String description, ArrayList<String> colors, String name, boolean frozen) {
+    public Minion(final int mana, final int health, final int attackDamage,
+    final String description, final ArrayList<String> colors,
+    final String name, final boolean frozen) {
         this.setMana(mana);
         this.setHealth(health);
         this.setAttackDamage(attackDamage);
@@ -18,51 +20,97 @@ public class Minion extends Card{
         this.frozen = frozen;
     }
 
-    public void setDoneAttack(int doneAttack) {
+    /**
+     *
+     * @param doneAttack
+     * set the doneAttack field
+     */
+    public void setDoneAttack(final int doneAttack) {
         this.doneAttack = doneAttack;
     }
 
+    /**
+     *
+     * @return doneAttack
+     */
     public int getDoneAttack() {
         return doneAttack;
     }
 
-    public void setHealth(int health) {
+    /**
+     *
+     * @param health
+     * set the health field
+     */
+    public void setHealth(final int health) {
         this.health = health;
     }
 
+    /**
+     *
+     * @return health
+     */
     public int getHealth() {
         return health;
     }
 
-    public void setAttackDamage(int attackDamage) {
+    /**
+     *
+     * @param attackDamage
+     * set the attackDamage field
+     */
+    public void setAttackDamage(final int attackDamage) {
         this.attackDamage = attackDamage;
     }
 
+    /**
+     *
+     * @return attackDamage
+     */
     public int getAttackDamage() {
         return attackDamage;
     }
 
+    /**
+     * set frozen to true
+     */
     public void setFrozen() {
         frozen = true;
     }
 
+    /**
+     * set fronze to false
+     */
     public void unsetFrozen() {
         frozen = false;
     }
 
+    /**
+     *
+     * @return frozen
+     */
     public boolean isFrozen() {
         return this.frozen;
     }
 
+    /**
+     *
+     * @return true if the minion is Tank
+     */
     public boolean isTank() {
-        if (this.getName().equals("Goliath") 
-        || this.getName().equals("Warden") ) {
+        if (this.getName().equals("Goliath")
+        || this.getName().equals("Warden")) {
             return true;
         }
         return false;
     }
 
-    public void useAbility(Minion minion) {
+    /**
+     *
+     * @param minion
+     * This functions represent the abilities of minions
+     */
+    public void useAbility(final Minion minion) {
         switch (this.getName()) {
             case "The Ripper":
                 if (minion.getAttackDamage() < 2) {
@@ -83,6 +131,8 @@ public class Minion extends Card{
                 break;
             case "Disciple":
                 minion.setHealth(minion.getHealth() + 2);
+                break;
+            default:
                 break;
         }
     }

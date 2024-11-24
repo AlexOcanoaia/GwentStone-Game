@@ -7,6 +7,7 @@ import java.util.Random;
 import org.poo.card.Hero;
 import org.poo.card.Minion;
 import org.poo.fileio.ActionsInput;
+import org.poo.fileio.GameInput;
 import org.poo.fileio.Input;
 import org.poo.player.Player;
 import org.poo.statistics.Statistics;
@@ -17,50 +18,71 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Game {
-    private int number_of_turn = 1;
+    private int numberOfTurn = 1;
     private int currentPlayer;
     private Player player1 = new Player();
     private Player player2 = new Player();
-    ObjectMapper map = new ObjectMapper();
+    private ObjectMapper map = new ObjectMapper();
     private Statistics statistics = new Statistics();
-    Table table = new Table();
-    int endGame = 0;
-    int playerWin = 0;
+    private Table table = new Table();
+    private int endGame = 0;
+    private int playerWin = 0;
 
+    /**
+     *
+     * @return statistics field
+     */
     public Statistics getStatistics() {
         return statistics;
     }
 
-    public void shuffleDeck(Player player, long seed) {
+    /**
+     *
+     * @param player
+     * @param seed
+     * it shuffle the deck with a random seed
+     */
+    public void shuffleDeck(final Player player, final long seed) {
         Collections.shuffle(player.getDeck(), new Random(seed));
     }
 
-    public void startGame(Input input, int numberOfGames) {
-        player1.setCards_in_deck(input.getPlayerOneDecks().getNrCardsInDeck());
-        player1.setNumber_of_decks(input.getPlayerOneDecks().getNrDecks());
+    /**
+     *
+     * @param input
+     * @param numberOfGames
+     *  This functions get the input commands
+     */
+    public void startGame(final Input input, final int numberOfGames) {
+        player1.setcardsInDeck(input.getPlayerOneDecks().getNrCardsInDeck());
+        player1.setnumberOfDecks(input.getPlayerOneDecks().getNrDecks());
         player1.initializeDecks(input.getPlayerOneDecks().getDecks());
 
-        player2.setCards_in_deck(input.getPlayerTwoDecks().getNrCardsInDeck());
-        player2.setNumber_of_decks(input.getPlayerTwoDecks().getNrDecks());
+        player2.setcardsInDeck(input.getPlayerTwoDecks().getNrCardsInDeck());
+        player2.setnumberOfDecks(input.getPlayerTwoDecks().getNrDecks());
         player2.initializeDecks(input.getPlayerTwoDecks().getDecks());
 
-        int indexDeck = input.getGames().get(numberOfGames).getStartGame().getPlayerOneDeckIdx();
-        long seed = input.getGames().get(numberOfGames).getStartGame().getShuffleSeed();
+        ArrayList<GameInput> games = input.getGames();
+
+        int indexDeck = games.get(numberOfGames).getStartGame().getPlayerOneDeckIdx();
+        long seed = games.get(numberOfGames).getStartGame().getShuffleSeed();
         player1.setDeck(player1.getDecks().get(indexDeck));
         shuffleDeck(player1, seed);
 
-        indexDeck = input.getGames().get(numberOfGames).getStartGame().getPlayerTwoDeckIdx();
+        indexDeck = games.get(numberOfGames).getStartGame().getPlayerTwoDeckIdx();
         player2.setDeck(player2.getDecks().get(indexDeck));
         shuffleDeck(player2, seed);
 
-        player1.initializeHero(input.getGames().get(numberOfGames).getStartGame().getPlayerOneHero());
-        player2.initializeHero(input.getGames().get(numberOfGames).getStartGame().getPlayerTwoHero());
+        player1.initializeHero(games.get(numberOfGames).getStartGame().getPlayerOneHero());
+        player2.initializeHero(games.get(numberOfGames).getStartGame().getPlayerTwoHero());
 
-        currentPlayer = input.getGames().get(numberOfGames).getStartGame().getStartingPlayer();
+        currentPlayer = games.get(numberOfGames).getStartGame().getStartingPlayer();
         player1.setId(1);
         player2.setId(2);
     }
 
+    /**
+     * Start a round
+     */
     public void startRound() {
         if (player1.getDeck().size() != 0) {
             player1.addCardinHand(player1.getDeck().get(0));
@@ -68,11 +90,14 @@ public class Game {
         if (player2.getDeck().size() != 0) {
             player2.addCardinHand(player2.getDeck().get(0));
         }
-        player1.setMana(player1.getMana() + number_of_turn);
-        player2.setMana(player2.getMana() + number_of_turn);
-        number_of_turn++;
+        player1.setMana(player1.getMana() + numberOfTurn);
+        player2.setMana(player2.getMana() + numberOfTurn);
+        numberOfTurn++;
     }
 
+    /**
+     * End turn for a player
+     */
     public void endTurn() {
         table.unfrozenMinions(currentPlayer);
         if (currentPlayer == 1) {
@@ -86,16 +111,21 @@ public class Game {
             table.setMinions(2);
             currentPlayer = 1;
         }
-        if (player1.getDoneRound() == 1 &&
-            player2.getDoneRound() == 1) {
-                
+        if (player1.getDoneRound() == 1
+        && player2.getDoneRound() == 1) {
             player1.setDoneRound(0);
             player2.setDoneRound(0);
             startRound();
         }
     }
 
-    public void placeCard(int index, ArrayNode output) {
+    /**
+     *
+     * @param index
+     * @param output
+     * This function place a card on the table
+     */
+    public void placeCard(final int index, final ArrayNode output) {
         ObjectNode tmp = map.createObjectNode();
         tmp.put("command", "placeCard");
         tmp.put("handIdx", index);
@@ -117,7 +147,6 @@ public class Game {
                 System.out.println("Invalid index");
             } else {
                 result = table.addCardtoTable(cardsList.get(index), player2);
-                
                 if (result == null) {
                     cardsList.remove(index);
                     player2.setHand(cardsList);
@@ -130,7 +159,13 @@ public class Game {
         }
     }
 
-    public void getPlayerDeck(int index, final ArrayNode output) {
+    /**
+     *
+     * @param index
+     * @param output
+     * It adds in output the current player deck
+     */
+    public void getPlayerDeck(final int index, final ArrayNode output) {
         ArrayList<Minion> deck = new ArrayList<>();
         if (index == 1) {
             deck = player1.getDeck();
@@ -159,7 +194,13 @@ public class Game {
         output.add(tmp);
     }
 
-    public void getPlayerHero(int index, final ArrayNode output) {
+    /**
+     *
+     * @param index
+     * @param output
+     * It adds in output the current player hero
+     */
+    public void getPlayerHero(final int index, final ArrayNode output) {
         Hero hero = new Hero();
         if (index == 1) {
             hero = player1.getHero();
@@ -169,7 +210,6 @@ public class Game {
         ObjectNode tmp = map.createObjectNode();
         tmp.put("command", "getPlayerHero");
         tmp.put("playerIdx", index);
-        ArrayNode array = map.createArrayNode();
         ObjectNode node = map.createObjectNode();
         node.put("mana", hero.getMana());
         node.put("description", hero.getDescription());
@@ -180,19 +220,29 @@ public class Game {
         node.set("colors", arrayColors);
         node.put("name", hero.getName());
         node.put("health", hero.getHealth());
-        // array.add(node);
         tmp.set("output", node);
         output.add(tmp);
     }
 
-    public void getPlayerTurn(ArrayNode output) {
+    /**
+     *
+     * @param output
+     * It shows the current player
+     */
+    public void getPlayerTurn(final ArrayNode output) {
         ObjectNode node = map.createObjectNode();
         node.put("command", "getPlayerTurn");
         node.put("output", currentPlayer);
         output.add(node);
     }
 
-    public void getCardsInHand(int index, ArrayNode output) {
+    /**
+     *
+     * @param index
+     * @param output
+     * It shows the cards that the current player has in hand
+     */
+    public void getCardsInHand(final int index, final ArrayNode output) {
         ArrayList<Minion> deck = new ArrayList<>();
         System.out.println("The index cardinHand is " + index);
         if (index == 1) {
@@ -222,7 +272,13 @@ public class Game {
         output.add(tmp);
     }
 
-    public void getPlayerMana(int index, ArrayNode output) {
+    /**
+     *
+     * @param index
+     * @param output
+     * It shows how much mana the current player has
+     */
+    public void getPlayerMana(final int index, final ArrayNode output) {
         ObjectNode node = map.createObjectNode();
         node.put("command", "getPlayerMana");
         node.put("playerIdx", index);
@@ -234,13 +290,20 @@ public class Game {
         output.add(node);
     }
 
-    public void getCardsOnTable(ArrayNode output) {
+    /**
+     *
+     * @param output
+     * It shows the cards that are on the table
+     */
+    public void getCardsOnTable(final ArrayNode output) {
         ObjectNode tmp = map.createObjectNode();
         tmp.put("command", "getCardsOnTable");
         ArrayNode array = map.createArrayNode();
-        for (int i = 0; i < 4; i++) {
+        final int numberRows = 4;
+        final int numberColumns = 5;
+        for (int i = 0; i < numberRows; i++) {
             ArrayNode rowArray = map.createArrayNode();
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < numberColumns; j++) {
                 Minion aux = table.getTable().get(i).get(j);
                 if (aux != null) {
                     ObjectNode node = map.createObjectNode();
@@ -263,9 +326,17 @@ public class Game {
         output.add(tmp);
     }
 
-    public void checkAttack(int x1, int y1, int x2, int y2, ArrayNode output) {
-        System.out.println("This is the table");
-        // table.showCards(output);
+    /**
+     *
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param output
+     * It shows it the attack is successful or it shows the error
+     */
+    public void checkAttack(final int x1, final int y1, final int x2,
+                        final int y2, final ArrayNode output) {
         String result = table.attackCard(x1, y1, x2, y2);
         if (result != null) {
             ObjectNode tmp = map.createObjectNode();
@@ -283,11 +354,17 @@ public class Game {
         }
     }
 
-    public void getCardAtPosition(int x, int y, ArrayNode output) {
+    /**
+     *
+     * @param x
+     * @param y
+     * @param output
+     * It show the card at a certain position
+     */
+    public void getCardAtPosition(final int x, final int y, final ArrayNode output) {
         Minion aux = table.getCard(x, y);
         ObjectNode tmp = map.createObjectNode();
         tmp.put("command", "getCardAtPosition");
-        ObjectNode node1 = map.createObjectNode();
         tmp.put("x", x);
         tmp.put("y", y);
         if (aux != null) {
@@ -309,7 +386,18 @@ public class Game {
         output.add(tmp);
     }
 
-    public void cardUsesAbility(int x1, int y1, int x2, int y2, ArrayNode output) {
+    /**
+     *
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param output
+     * It shows if the ability is successful or
+     * it shows error
+     */
+    public void cardUsesAbility(final int x1, final int y1, final int x2,
+                        final int y2, final ArrayNode output) {
         String result = table.cardAbility(x1, y1, x2, y2);
         if (result != null) {
             ObjectNode tmp = map.createObjectNode();
@@ -327,9 +415,19 @@ public class Game {
         }
     }
 
-    public String attackHero(int x, int y) {
+    /**
+     *
+     * @param x
+     * @param y
+     * @return null is the attack is successful, otherwise
+     * returns error
+     */
+    public String attackHero(final int x, final int y) {
         Minion minion = table.getCard(x, y);
-        if (minion.isFrozen() == true) {
+        if (minion == null) {
+            return "null";
+        }
+        if (minion.isFrozen()) {
             return "Attacker card is frozen.";
         }
         if (minion.getDoneAttack() == 1) {
@@ -365,17 +463,25 @@ public class Game {
         }
         return null;
     }
-    
-    public void useAttackHero(int x, int y, ArrayNode output) {
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @param output
+     *  Attacks the hero
+     */
+    public void useAttackHero(final int x, final int y,
+                    final ArrayNode output) {
         String result = attackHero(x, y);
         ObjectNode tmp = map.createObjectNode();
         if (result != null) {
-            if (result.equals("Player one killed the enemy hero.") == true) {
+            if (result.equals("Player one killed the enemy hero.")) {
                 tmp.put("gameEnded", result);
                 endGame = 1;
                 playerWin = 1;
                 endGame();
-            } else if (result.equals("Player two killed the enemy hero.") == true) {
+            } else if (result.equals("Player two killed the enemy hero.")) {
                 tmp.put("gameEnded", result);
                 endGame = 1;
                 playerWin = 2;
@@ -392,7 +498,13 @@ public class Game {
         }
     }
 
-    public void useHeroAbility(int row, ArrayNode output) {
+    /**
+     *
+     * @param row
+     * @param output
+     * This function represent the ability for the hero
+     */
+    public void useHeroAbility(final int row, final ArrayNode output) {
         String result = null;
         if (currentPlayer == 1) {
             result = table.heroAbility(player1, row);
@@ -408,6 +520,9 @@ public class Game {
         }
     }
 
+    /**
+     * Increment the victories
+     */
     public void endGame() {
         if (playerWin == 1) {
             statistics.setPlayerOneWins(statistics.getPlayerOneWins() + 1);
@@ -416,14 +531,18 @@ public class Game {
         }
     }
 
-    public void output(Input input, int numberOfGame, final ArrayNode output) {
+    /**
+     *
+     * @param input
+     * @param numberOfGame
+     * @param output
+     *  It shows the output of the commands
+     */
+    public void output(final Input input, final int numberOfGame,
+                    final ArrayNode output) {
         table.initializeTable();
         ArrayList<ActionsInput> actions = input.getGames().get(numberOfGame).getActions();
         for (int i = 0; i < actions.size(); i++) {
-            System.out.println(actions.get(i).getCommand());
-            if (actions.get(i).getCommand().equals("placeCard") == true) {
-                System.out.println("Is " + actions.get(i).getHandIdx());
-            }
             switch (actions.get(i).getCommand()) {
                 case "getPlayerDeck":
                     int index = actions.get(i).getPlayerIdx();
@@ -505,8 +624,9 @@ public class Game {
                     node3.put("output", statistics.getPlayerTwoWins());
                     output.add(node3);
                     break;
+                default:
+                    break;
             }
         }
-        System.out.println("\n");
     }
 }

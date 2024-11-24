@@ -2,38 +2,63 @@ package org.poo.card;
 
 import java.util.ArrayList;
 
-public class Hero extends Card{
-    int health = 30;
-    int doneAttack = 0;
+public class Hero extends Card {
+    private final int maxHealth = 30;
+    private int health = maxHealth;
+    private int doneAttack = 0;
 
     public Hero() {
-        
+
     }
 
-    public Hero(int mana, String description, ArrayList<String> colors, String name) {
+    public Hero(final int mana, final String description,
+    final ArrayList<String> colors, final String name) {
         this.setMana(mana);
         this.setDescription(description);
         this.setColors(colors);
         this.setName(name);
     }
 
-    public void setDoneAttack(int doneAttack) {
+    /**
+     *
+     * @param doneAttack
+     * set the doneAttack field
+     */
+    public void setDoneAttack(final int doneAttack) {
         this.doneAttack = doneAttack;
     }
 
+    /**
+     *
+     * @return doneAttack
+     */
     public int getDoneAttack() {
         return doneAttack;
     }
 
+    /**
+     *
+     * @return health
+     */
     public int getHealth() {
         return health;
     }
-    
-    public void setHealth(int health) {
+
+    /**
+     *
+     * @param health
+     * set the health field
+     */
+    public void setHealth(final int health) {
         this.health = health;
     }
 
-    public void useAbility(ArrayList<Minion> list) {
+    /**
+     *
+     * @param list
+     * This functions represent the abilities for heroes
+     */
+    public void useAbility(final ArrayList<Minion> list) {
         switch (this.getName()) {
             case "Lord Royce":
                 for (int i = 0; i < list.size(); i++) {
@@ -56,7 +81,8 @@ public class Hero extends Card{
                 if (index != -1) {
                     list.set(index, null);
                 }
-                for (int i = index; i < 4; i++) {
+                final int numberRows = 4;
+                for (int i = index; i < numberRows; i++) {
                     Minion current = list.get(i);
                     Minion next = list.get(i + 1);
                     if (next != null) {
@@ -79,6 +105,8 @@ public class Hero extends Card{
                         list.get(i).setAttackDamage(list.get(i).getAttackDamage() + 1);
                     }
                 }
+                break;
+            default:
                 break;
         }
     }

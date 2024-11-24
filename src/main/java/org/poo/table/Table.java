@@ -14,7 +14,7 @@ public class Table {
     private ArrayList<ArrayList<Minion>> table = new ArrayList<>();
     private final int numberRows = 4;
     private final int numberColumns = 5;
-
+    private final int row3 = 3;
     /**
      *
      * @return the table
@@ -23,6 +23,10 @@ public class Table {
         return table;
     }
 
+    /**
+     *
+     *  Allocate memory for the table
+     */
     public void initializeTable() {
         for (byte i = 0; i < numberRows; i++) {
             ArrayList<Minion> row = new ArrayList<>();
@@ -33,7 +37,12 @@ public class Table {
         }
     }
 
-    public int findSpot(int x) {
+    /**
+     *
+     * @param x
+     * @return if there is a free spot on the row
+     */
+    public int findSpot(final int x) {
         for (byte i = 0; i < numberColumns; i++) {
             if (table.get(x).get(i) == null) {
                 return i;
@@ -42,15 +51,23 @@ public class Table {
         return -1;
     }
 
-    public String addCardtoTable(Minion minion, Player player) {
+    /**
+     *
+     * @param minion
+     * @param player
+     * @return null if the card is add to table,
+     *          otherwise returns error
+     */
+    public String addCardtoTable(final Minion minion, final Player player) {
         String name = minion.getName();
         if (player.getMana() < minion.getMana()) {
             return "Not enough mana to place card on table.";
         }
-        if (name.equals("Sentinel") || name.equals("Berserker") || name.equals("The Cursed One") || name.equals("Disciple")) {
+        if (name.equals("Sentinel") || name.equals("Berserker")
+        || name.equals("The Cursed One") || name.equals("Disciple")) {
             if (player.getId() == 1) {
-                if (findSpot(3) != -1) {
-                    table.get(3).set(findSpot(3), minion);
+                if (findSpot(row3) != -1) {
+                    table.get(row3).set(findSpot(row3), minion);
                     player.setMana(player.getMana() - minion.getMana());
                     return null;
                 } else {
@@ -65,7 +82,8 @@ public class Table {
                     return "Cannot place card on table since row is full.";
                 }
             }
-        } else if (name.equals("Goliath") || name.equals("Warden") || name.equals("The Ripper") || name.equals("Miraj")) {
+        } else if (name.equals("Goliath") || name.equals("Warden")
+        || name.equals("The Ripper") || name.equals("Miraj")) {
             if (player.getId() == 1) {
                 if (findSpot(2) != -1) {
                     table.get(2).set(findSpot(2), minion);
@@ -87,7 +105,13 @@ public class Table {
         return null;
     }
 
-    public void eliminateCard(int x, int y) {
+    /**
+     *
+     * @param x
+     * @param y
+     *  This function eliminate a card from the table
+     */
+    public void eliminateCard(final int x, final int y) {
         table.get(x).set(y, null);
         for (int i = y; i < numberColumns - 1; i++) {
             Minion current = table.get(x).get(i);
@@ -100,20 +124,31 @@ public class Table {
         }
     }
 
-    public Minion getCard(int x, int y) {
+    /**
+     *
+     * @param x
+     * @param y
+     * @return the minion at row x and column y
+     */
+    public Minion getCard(final int x, final int y) {
         return table.get(x).get(y);
     }
 
-    public Minion checkTank(int id) {
+    /**
+     *
+     * @param id
+     * @return if the player has a Tank card
+     */
+    public Minion checkTank(final int id) {
         int row = 0;
         if (id == 1) {
             row = 1;
         } else {
             row = 2;
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < numberColumns; i++) {
             if (table.get(row).get(i) != null) {
-                if (table.get(row).get(i).isTank() == true) {
+                if (table.get(row).get(i).isTank()) {
                     return table.get(row).get(i);
                 }
             }
@@ -121,11 +156,19 @@ public class Table {
         return null;
     }
 
-    public String attackCard(int x1, int y1, int x2, int y2) {
+    /**
+     *
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return null if the attack is successful, otherwise
+     *          returns error
+     */
+    public String attackCard(final int x1, final int y1, final int x2, final int y2) {
         Minion tank = null;
-        int column = 0;
-        if (x1 == 2 || x1 == 3) {
-            if (x2 == 2 || x2 == 3) {
+        if (x1 == 2 || x1 == row3) {
+            if (x2 == 2 || x2 == row3) {
                 return "Attacked card does not belong to the enemy.";
             }
             tank = checkTank(1);
@@ -149,15 +192,14 @@ public class Table {
         if (minion1.getDoneAttack() == 1) {
             return "Attacker card has already attacked this turn.";
         }
-        if (minion1.isFrozen() == true) {
+        if (minion1.isFrozen()) {
             return "Attacker card is frozen.";
         }
 
         if (tank != null) {
-            if (tank.equals(minion2) == false) {
+            if (!tank.equals(minion2)) {
                 return "Attacked card is not of type 'Tank'.";
             }
-            
         }
 
         int newHealth = minion2.getHealth() - minion1.getAttackDamage();
@@ -170,7 +212,16 @@ public class Table {
         return null;
     }
 
-    public String cardAbility(int x1, int y1, int x2, int y2) {
+    /**
+     *
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return null if the ability is successful, otherwise
+     *          returns error
+     */
+    public String cardAbility(final int x1, final int y1, final int x2, final int y2) {
         Minion card1 = getCard(x1, y1);
         Minion card2 = getCard(x2, y2);
 
@@ -178,7 +229,7 @@ public class Table {
             return "card is null";
         }
 
-        if (card1.isFrozen() == true) {
+        if (card1.isFrozen()) {
             return "Attacker card is frozen.";
         }
 
@@ -187,8 +238,8 @@ public class Table {
         }
         Minion tank = null;
         if (x1 == 0 || x1 == 1) {
-            if (card1.getName().equals("Disciple") == true) {
-                if (x2 == 2 || x2 == 3) {
+            if (card1.getName().equals("Disciple")) {
+                if (x2 == 2 || x2 == row3) {
                     return "Attacked card does not belong to the current player.";
                 }
                 card1.useAbility(card2);
@@ -201,7 +252,7 @@ public class Table {
             }
             tank = checkTank(2);
         } else {
-            if (card1.getName().equals("Disciple") == true) {
+            if (card1.getName().equals("Disciple")) {
                 if (x2 == 0 || x2 == 1) {
                     return "Attacked card does not belong to the current player.";
                 }
@@ -209,7 +260,7 @@ public class Table {
                 card1.setDoneAttack(1);
                 return null;
             } else {
-                if (x2 == 2 || x2 == 3) {
+                if (x2 == 2 || x2 == row3) {
                     return "Attacked card does not belong to the enemy.";
                 }
             }
@@ -217,7 +268,7 @@ public class Table {
         }
 
         if (tank != null) {
-            if (tank.equals(card2) == false) {
+            if (!tank.equals(card2)) {
                 return "Attacked card is not of type 'Tank'.";
             }
         }
@@ -230,14 +281,19 @@ public class Table {
         return null;
     }
 
-    public void getFrozenCardsOnTable(ArrayNode output) {
+    /**
+     *
+     * @param output
+     * It add in output the frozen cards on the table
+     */
+    public void getFrozenCardsOnTable(final ArrayNode output) {
         ObjectMapper tmpMap = new ObjectMapper();
         ObjectNode tmp = tmpMap.createObjectNode();
         ArrayNode result = tmpMap.createArrayNode();
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < numberRows; i++) {
+            for (int j = 0; j < numberColumns; j++) {
                 Minion aux = getCard(i, j);
-                if (aux != null && aux.isFrozen() == true) {
+                if (aux != null && aux.isFrozen()) {
                     ObjectNode node = tmpMap.createObjectNode();
                     node.put("mana", aux.getMana());
                     node.put("attackDamage", aux.getAttackDamage());
@@ -258,25 +314,36 @@ public class Table {
         output.add(tmp);
     }
 
-    public ArrayList<Minion> getRow(int row) {
+    /**
+     *
+     * @param row
+     * @return a row from the table
+     */
+    public ArrayList<Minion> getRow(final int row) {
         return table.get(row);
     }
 
-    public String heroAbility(Player player, int row) {
+    /**
+     *
+     * @param player
+     * @param row
+     * @return null if the ability is successful, otherwise
+     *          returns error
+     */
+    public String heroAbility(final Player player, final int row) {
         Hero hero = player.getHero();
         if (player.getMana() < hero.getMana()) {
             return "Not enough mana to use hero's ability.";
         }
-        
+
         if (hero.getDoneAttack() == 1) {
             return "Hero has already attacked this turn.";
         }
 
         String name = hero.getName();
-        if (name.equals("Lord Royce") == true ||
-        name.equals("Empress Thorina") == true) {
+        if (name.equals("Lord Royce") || name.equals("Empress Thorina")) {
             if (player.getId() == 1) {
-                if (row == 2 || row == 3) {
+                if (row == 2 || row == row3) {
                     return "Selected row does not belong to the enemy.";
                 }
             } else {
@@ -286,14 +353,13 @@ public class Table {
             }
         }
 
-        if (name.equals("General Kocioraw") == true ||
-        name.equals("King Mudface") == true) {
+        if (name.equals("General Kocioraw") || name.equals("King Mudface")) {
             if (player.getId() == 1) {
                 if (row == 0 || row == 1) {
                     return "Selected row does not belong to the current player.";
                 }
             } else {
-                if (row == 2 || row == 3) {
+                if (row == 2 || row == row3) {
                     return "Selected row does not belong to the current player.";
                 }
             }
@@ -306,29 +372,24 @@ public class Table {
         return null;
     }
 
-    public void showCards(ArrayNode output) {
-        for (int i = 0; i < numberRows; i++) {
-            for (int j = 0; j < numberColumns; j++) {
-                if (table.get(i).get(j) != null) {
-                    System.out.println("The minion at row " + i + " and column " + j + " is " + table.get(i).get(j).getName());
-                    output.add("The minion at row " + i + " and column " + j + " is " + table.get(i).get(j).getName());
-                }
-            }
-        }
-    }
-
-    public void setMinions(int id) {
+    /**
+     *
+     * @param id
+     * set the field doneAttack to 0 for every minion
+     *  from a player
+     */
+    public void setMinions(final int id) {
         int start = 0;
         int max = 0;
         if (id == 1) {
             start = 2;
-            max = 4;
+            max = numberRows;
         } else {
             start = 0;
             max = 2;
         }
         for (int i = start; i < max; i++) {
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < numberColumns; j++) {
                 if (table.get(i).get(j) != null) {
                     table.get(i).get(j).setDoneAttack(0);
                 }
@@ -336,12 +397,17 @@ public class Table {
         }
     }
 
-    public void unfrozenMinions(int id) {
+    /**
+     *
+     * @param id
+     *  unfrozen the minions for a player
+     */
+    public void unfrozenMinions(final int id) {
         int start;
         int max;
         if (id == 1) {
            start = 2;
-           max = 4;
+           max = numberRows;
         } else {
             start = 0;
             max = 2;
