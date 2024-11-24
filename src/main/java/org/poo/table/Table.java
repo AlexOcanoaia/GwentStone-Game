@@ -12,17 +12,21 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Table {
     private ArrayList<ArrayList<Minion>> table = new ArrayList<>();
-    final int number_rows = 4;
-    final int number_columns = 5;
+    private final int numberRows = 4;
+    private final int numberColumns = 5;
 
+    /**
+     *
+     * @return the table
+     */
     public ArrayList<ArrayList<Minion>> getTable() {
         return table;
     }
 
     public void initializeTable() {
-        for (byte i = 0; i < number_rows; i++) {
+        for (byte i = 0; i < numberRows; i++) {
             ArrayList<Minion> row = new ArrayList<>();
-            for (byte j = 0; j < number_columns; j++) {
+            for (byte j = 0; j < numberColumns; j++) {
                 row.add(null);
             }
             table.add(row);
@@ -30,7 +34,7 @@ public class Table {
     }
 
     public int findSpot(int x) {
-        for (byte i = 0; i < number_columns; i++) {
+        for (byte i = 0; i < numberColumns; i++) {
             if (table.get(x).get(i) == null) {
                 return i;
             }
@@ -85,7 +89,7 @@ public class Table {
 
     public void eliminateCard(int x, int y) {
         table.get(x).set(y, null);
-        for (int i = y; i < number_columns - 1; i++) {
+        for (int i = y; i < numberColumns - 1; i++) {
             Minion current = table.get(x).get(i);
             Minion next = table.get(x).get(i + 1);
             if (table.get(x).get(i + 1) != null) {
@@ -153,10 +157,7 @@ public class Table {
             if (tank.equals(minion2) == false) {
                 return "Attacked card is not of type 'Tank'.";
             }
-            // tank.setHealth(tank.getHealth() - minion1.getAttackDamage());
-            // if (tank.getHealth() <= 0) {
-            //     eliminateCard(x2, y2);
-            // }
+            
         }
 
         int newHealth = minion2.getHealth() - minion1.getAttackDamage();
@@ -191,6 +192,7 @@ public class Table {
                     return "Attacked card does not belong to the current player.";
                 }
                 card1.useAbility(card2);
+                card1.setDoneAttack(1);
                 return null;
             } else {
                 if (x2 == 0 || x2 == 1) {
@@ -204,6 +206,7 @@ public class Table {
                     return "Attacked card does not belong to the current player.";
                 }
                 card1.useAbility(card2);
+                card1.setDoneAttack(1);
                 return null;
             } else {
                 if (x2 == 2 || x2 == 3) {
@@ -220,6 +223,7 @@ public class Table {
         }
 
         card1.useAbility(card2);
+        card1.setDoneAttack(1);
         if (card2.getHealth() <= 0) {
             eliminateCard(x2, y2);
         }
@@ -303,8 +307,8 @@ public class Table {
     }
 
     public void showCards(ArrayNode output) {
-        for (int i = 0; i < number_rows; i++) {
-            for (int j = 0; j < number_columns; j++) {
+        for (int i = 0; i < numberRows; i++) {
+            for (int j = 0; j < numberColumns; j++) {
                 if (table.get(i).get(j) != null) {
                     System.out.println("The minion at row " + i + " and column " + j + " is " + table.get(i).get(j).getName());
                     output.add("The minion at row " + i + " and column " + j + " is " + table.get(i).get(j).getName());
@@ -343,7 +347,7 @@ public class Table {
             max = 2;
         }
         for (int i = start; i < max; i++) {
-            for (int j = 0; j < number_columns; j++) {
+            for (int j = 0; j < numberColumns; j++) {
                 if (table.get(i).get(j) != null) {
                     table.get(i).get(j).unsetFrozen();
                 }

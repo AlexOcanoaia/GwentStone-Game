@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
-import org.poo.fileio.ActionsInput;
 import org.poo.fileio.GameInput;
 import org.poo.fileio.Input;
 import org.poo.game.Game;
-import org.poo.output.Output;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,6 +92,7 @@ public final class Main {
         ArrayList<GameInput> games = inputData.getGames();
         for (int i = 0; i < games.size(); i++) {
             Game game = new Game();
+            game.getStatistics().setNumberGamesplayed(games.size());
             game.startGame(inputData, 0);
             game.startRound();
             game.output(inputData, 0, output);

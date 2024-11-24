@@ -9,6 +9,7 @@ import org.poo.card.Minion;
 import org.poo.fileio.ActionsInput;
 import org.poo.fileio.Input;
 import org.poo.player.Player;
+import org.poo.statistics.Statistics;
 import org.poo.table.Table;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,8 +22,14 @@ public class Game {
     private Player player1 = new Player();
     private Player player2 = new Player();
     ObjectMapper map = new ObjectMapper();
+    private Statistics statistics = new Statistics();
     Table table = new Table();
     int endGame = 0;
+    int playerWin = 0;
+
+    public Statistics getStatistics() {
+        return statistics;
+    }
 
     public void shuffleDeck(Player player, long seed) {
         Collections.shuffle(player.getDeck(), new Random(seed));
@@ -363,10 +370,16 @@ public class Game {
         String result = attackHero(x, y);
         ObjectNode tmp = map.createObjectNode();
         if (result != null) {
-            if (result.equals("Player one killed the enemy hero.") == true ||
-            result.equals("Player two killed the enemy hero.") == true ) {
+            if (result.equals("Player one killed the enemy hero.") == true) {
                 tmp.put("gameEnded", result);
                 endGame = 1;
+                playerWin = 1;
+                endGame();
+            } else if (result.equals("Player two killed the enemy hero.") == true) {
+                tmp.put("gameEnded", result);
+                endGame = 1;
+                playerWin = 2;
+                endGame();
             } else {
                 tmp.put("command", "useAttackHero");
                 ObjectNode node1 = map.createObjectNode();
@@ -395,6 +408,13 @@ public class Game {
         }
     }
 
+    public void endGame() {
+        if (playerWin == 1) {
+            statistics.setPlayerOneWins(statistics.getPlayerOneWins() + 1);
+        } else {
+            statistics.setPlayerTwoWins(statistics.getPlayerTwoWins() + 1);
+        }
+    }
 
     public void output(Input input, int numberOfGame, final ArrayNode output) {
         table.initializeTable();
@@ -467,7 +487,24 @@ public class Game {
                     int row = actions.get(i).getAffectedRow();
                     useHeroAbility(row, output);
                     break;
-                
+                case "getTotalGamesPlayed":
+                    ObjectNode node1 = map.createObjectNode();
+                    node1.put("command", "getTotalGamesPlayed");
+                    node1.put("output", statistics.getNumberGamesplayed());
+                    output.add(node1);
+                    break;
+                case "getPlayerOneWins":
+                    ObjectNode node2 = map.createObjectNode();
+                    node2.put("command", "getPlayerOneWins");
+                    node2.put("output", statistics.getPlayerOneWins());
+                    output.add(node2);
+                    break;
+                case "getPlayerTwoWins":
+                    ObjectNode node3 = map.createObjectNode();
+                    node3.put("command", "getPlayerTwoWins");
+                    node3.put("output", statistics.getPlayerTwoWins());
+                    output.add(node3);
+                    break;
             }
         }
         System.out.println("\n");
