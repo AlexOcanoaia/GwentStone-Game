@@ -1,42 +1,50 @@
+    I have created 5 Java packages: Card (Card, Minion, Hero),
+Game (Game), Player (Player), Table (Table), Statistics (Statistics).
+In parantheses i wrote the classes that every package contains.
+
+    In the Card package i implemented getters, setters and useAbility
+method. In useAbility method i use a switch with the name of the card
+as a parameter. I check the name of the card and use the ability 
+corresponding to every card (some cards don't have abilities).
+
+    In the Statistics package i have 3 fields: numberGamesplayed,
+playerOneWins, playerTwoWins. I use this package to retain the 
+number of games played and the victories for each player.
+
+    In the Player package i retain the decks from the start,
+the deck that the player will use to play the game, the hero,
+mana , id. In the Player class i implemented setters,
+getters, addCardInHand method (it add a card from the deck),
+initializeDecks (has the role to make a cast from CardInput to
+Minion) and initializeHero (make cast from CardInput to Hero)
+
+    In the Table package I implemented one class (Table). In this
+class I represent the table with a ArrayList<ArrayList<Minion>> (has 
+4 rows and 5 columns). 
+    Method addCardtoTable has the role to add a card on the table.
+I verify the minions name to put the card on the right row. After
+i place the card on the first free spot that i find. It returns 
+null if the card is place corectly. Otherwise, it returns error.
+    In the Table class, i have methods that represents a part
+of the gameplay (attackCard, cardAbility, heroAbility). In each 
+method, first i verify the errors. Like the method addCardToTable
+each method returns null if the operation is successful.
+
+    In the Game package I have the most of the gameplay and 
+the most of the output commands. Method startGame has the role
+to take all the information from the input files and place it 
+in the fields of the players. It prepares the decks (it shuffled
+them). 
+    Method startRound it increment the mana each player has and
+and a new card in each player hand. Method endTurn it ends the
+turn for the current player (unfroze all the minions that the 
+player has on table)
+    For the final I have implement the endGame method that
+increments the player victories.
+
+    In the Game class I coded the output commands (I used 
+ObjectNode and ArrayNode class to place all the information
+that the output needs). In the output method i verify each
+command with the help from a switch. 
 
 
-# Tema POO  - GwentStone
-
-<div align="center"><img src="https://tenor.com/view/witcher3-gif-9340436.gif" width="500px"></div>
-
-#### Assignment Link: [https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema](https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema)
-
-
-## Skel Structure
-
-* src/
-  * checker/ - checker files
-  * fileio/ - contains classes used to read data from the json files
-  * main/
-      * Main - the Main class runs the checker on your implementation. Add the entry point to your implementation in it. Run Main to test your implementation from the IDE or from command line.
-      * Test - run the main method from Test class with the name of the input file from the command line and the result will be written
-        to the out.txt file. Thus, you can compare this result with ref.
-* input/ - contains the tests in JSON format
-* ref/ - contains all reference output for the tests in JSON format
-
-## Tests
-
-1. test01_game_start - 4p
-2. test02_place_card - 5p
-3. test03_place_card_invalid - 5p
-4. test04_attack_card - 5p
-5. test05_attack_card_invalid - 5p
-6. test06_use_card_ability - 5p
-7. test07_use_card_ability_invalid - 5p
-8. test08_attack_hero - 5p
-9. test09_attack_hero_invalid - 5p
-10. test10_use_hero_ability_1 - 4p
-11. test11_use_hero_ability_2 - 4p
-12. test12_use_hero_ability_invalid_1 - 4p
-13. test13_use_hero_ability_invalid_2 - 4p
-14. test14_multiple_games_valid - 5p
-15. test15_multiple_games_invalid - 5p
-16. test16_big_game - 10p
-
-
-<div align="center"><img src="https://tenor.com/view/homework-time-gif-24854817.gif" width="500px"></div>

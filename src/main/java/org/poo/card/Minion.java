@@ -11,12 +11,9 @@ public class Minion extends Card {
     public Minion(final int mana, final int health, final int attackDamage,
     final String description, final ArrayList<String> colors,
     final String name, final boolean frozen) {
-        this.setMana(mana);
+        super(mana, description, colors, name);
         this.setHealth(health);
         this.setAttackDamage(attackDamage);
-        this.setDescription(description);
-        this.setColors(colors);
-        this.setName(name);
         this.frozen = frozen;
     }
 

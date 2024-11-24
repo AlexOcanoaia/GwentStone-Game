@@ -8,6 +8,18 @@ public class Card {
     private ArrayList<String> colors;
     private String name;
 
+    public Card() {
+
+    }
+
+    public Card(final int mana, final String description,
+            final ArrayList<String> colors, final String name) {
+                this.mana = mana;
+                this.description = description;
+                this.colors = colors;
+                this.name = name;
+            }
+
     /**
      *
      * @param mana

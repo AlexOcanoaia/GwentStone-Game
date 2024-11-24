@@ -8,15 +8,12 @@ public class Hero extends Card {
     private int doneAttack = 0;
 
     public Hero() {
-
+        super();
     }
 
     public Hero(final int mana, final String description,
     final ArrayList<String> colors, final String name) {
-        this.setMana(mana);
-        this.setDescription(description);
-        this.setColors(colors);
-        this.setName(name);
+       super(mana, description, colors, name);
     }
 
     /**

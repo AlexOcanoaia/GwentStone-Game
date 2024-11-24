@@ -132,25 +132,17 @@ public class Game {
         String result = null;
         if (currentPlayer == 1) {
             ArrayList<Minion> cardsList = player1.getHand();
-            if (index >= cardsList.size() || index < 0) {
-                System.out.println("Invalid index");
-            } else {
-                result = table.addCardtoTable(cardsList.get(index), player1);
-                if (result == null) {
-                    cardsList.remove(index);
-                    player1.setHand(cardsList);
-                }
+            result = table.addCardtoTable(cardsList.get(index), player1);
+            if (result == null) {
+                cardsList.remove(index);
+                player1.setHand(cardsList);
             }
         } else {
             ArrayList<Minion> cardsList = player2.getHand();
-            if (index >= cardsList.size() || index < 0) {
-                System.out.println("Invalid index");
-            } else {
-                result = table.addCardtoTable(cardsList.get(index), player2);
-                if (result == null) {
-                    cardsList.remove(index);
-                    player2.setHand(cardsList);
-                }
+            result = table.addCardtoTable(cardsList.get(index), player2);
+            if (result == null) {
+                cardsList.remove(index);
+                player2.setHand(cardsList);
             }
         }
         if (result != null) {
@@ -244,7 +236,6 @@ public class Game {
      */
     public void getCardsInHand(final int index, final ArrayNode output) {
         ArrayList<Minion> deck = new ArrayList<>();
-        System.out.println("The index cardinHand is " + index);
         if (index == 1) {
             deck = player1.getHand();
         } else {
