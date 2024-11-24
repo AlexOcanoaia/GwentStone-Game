@@ -3,7 +3,7 @@ package org.poo.card;
 import java.util.ArrayList;
 
 public class Hero extends Card{
-    static int health = 30;
+    int health = 30;
 
     public Hero() {
         
@@ -16,8 +16,12 @@ public class Hero extends Card{
         this.setName(name);
     }
 
-    public static int getHealth() {
+    public int getHealth() {
         return health;
+    }
+    
+    public void setHealth(int health) {
+        this.health = health;
     }
 
     public void useAbility(Minion minion, ArrayList<Minion> list) {

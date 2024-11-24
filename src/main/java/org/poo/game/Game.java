@@ -22,6 +22,7 @@ public class Game {
     private Player player2 = new Player();
     ObjectMapper map = new ObjectMapper();
     Table table = new Table();
+    int endGame = 0;
 
     public void shuffleDeck(Player player, long seed) {
         Collections.shuffle(player.getDeck(), new Random(seed));
@@ -69,9 +70,11 @@ public class Game {
         table.unfrozenMinions(currentPlayer);
         if (currentPlayer == 1) {
             player1.setDoneRound(1);
+            table.setMinions(1);
             currentPlayer = 2;
         } else {
             player2.setDoneRound(1);
+            table.setMinions(2);
             currentPlayer = 1;
         }
         if (player1.getDoneRound() == 1 &&
@@ -79,7 +82,6 @@ public class Game {
                 
             player1.setDoneRound(0);
             player2.setDoneRound(0);
-            table.setMinions();
             startRound();
         }
     }
@@ -168,7 +170,7 @@ public class Game {
         }
         node.set("colors", arrayColors);
         node.put("name", hero.getName());
-        node.put("health", Hero.getHealth());
+        node.put("health", hero.getHealth());
         // array.add(node);
         tmp.set("output", node);
         output.add(tmp);
@@ -298,6 +300,83 @@ public class Game {
         output.add(tmp);
     }
 
+    public void cardUsesAbility(int x1, int y1, int x2, int y2, ArrayNode output) {
+        String result = table.cardAbility(x1, y1, x2, y2);
+        if (result != null) {
+            ObjectNode tmp = map.createObjectNode();
+            tmp.put("command", "cardUsesAbility");
+            ObjectNode node1 = map.createObjectNode();
+            node1.put("x", x1);
+            node1.put("y", y1);
+            tmp.set("cardAttacker", node1);
+            ObjectNode node2 = map.createObjectNode();
+            node2.put("x", x2);
+            node2.put("y", y2);
+            tmp.set("cardAttacked", node2);
+            tmp.put("error", result);
+            output.add(tmp);
+        }
+    }
+
+    public String attackHero(int x, int y) {
+        Minion minion = table.getCard(x, y);
+        if (minion.isFrozen() == true) {
+            return "Attacker card is frozen.";
+        }
+        if (minion.getDoneAttack() == 1) {
+            return "Attacker card has already attacked this turn.";
+        }
+        Minion tank = null;
+        int id = 0;
+        if (x == 0 || x == 1) {
+            id = 2;
+            tank = table.checkTank(2);
+        } else {
+            id = 1;
+            tank = table.checkTank(1);
+        }
+
+        if (tank != null) {
+            return "Attacked card is not of type 'Tank'.";
+        }
+
+        minion.setDoneAttack(1);
+        if (id == 1) {
+            int health = player2.getHero().getHealth() - minion.getAttackDamage();
+            if (health <= 0) {
+                return "Player one killed the enemy hero.";
+            }
+            player2.getHero().setHealth(health);
+        } else {
+            int health = player1.getHero().getHealth() - minion.getAttackDamage();
+            if (health <= 0) {
+                return "Player two killed the enemy hero.";
+            }
+            player1.getHero().setHealth(health);
+        }
+        return null;
+    }
+    
+    public void useAttackHero(int x, int y, ArrayNode output) {
+        String result = attackHero(x, y);
+        ObjectNode tmp = map.createObjectNode();
+        if (result != null) {
+            if (result.equals("Player one killed the enemy hero.") == true ||
+            result.equals("Player two killed the enemy hero.") == true ) {
+                tmp.put("gameEnded", result);
+                endGame = 1;
+            } else {
+                tmp.put("command", "useAttackHero");
+                ObjectNode node1 = map.createObjectNode();
+                node1.put("x", x);
+                node1.put("y", y);
+                tmp.set("cardAttacker", node1);
+                tmp.put("error", result);
+            }
+            output.add(tmp);
+        }
+    }
+
     public void output(Input input, int numberOfGame, final ArrayNode output) {
         table.initializeTable();
         ArrayList<ActionsInput> actions = input.getGames().get(numberOfGame).getActions();
@@ -347,6 +426,20 @@ public class Game {
                     int x = actions.get(i).getX();
                     int y = actions.get(i).getY();
                     getCardAtPosition(x, y, output);
+                    break;
+                case "cardUsesAbility":
+                    int abilityX1 = actions.get(i).getCardAttacker().getX();
+                    int abilityY1 = actions.get(i).getCardAttacker().getY();
+                    int abilityX2 = actions.get(i).getCardAttacked().getX();
+                    int abilityY2 = actions.get(i).getCardAttacked().getY();
+                    cardUsesAbility(abilityX1, abilityY1, abilityX2, abilityY2, output);
+                    break;
+                case "useAttackHero":
+                    if (endGame == 0) {
+                        int newX = actions.get(i).getCardAttacker().getX();
+                        int newY = actions.get(i).getCardAttacker().getY();
+                        useAttackHero(newX, newY, output);
+                    }
                     break;
             }
         }

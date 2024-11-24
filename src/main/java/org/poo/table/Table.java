@@ -116,15 +116,13 @@ public class Table {
 
     public String attackCard(int x1, int y1, int x2, int y2) {
         Minion tank = null;
-        int id = 0;
+        int column = 0;
         if (x1 == 2 || x1 == 3) {
-            id = 1;
             if (x2 == 2 || x2 == 3) {
                 return "Attacked card does not belong to the enemy.";
             }
             tank = checkTank(1);
         } else {
-            id = 2;
             if (x2 == 0 || x2 == 1) {
                 return "Attacked card does not belong to the enemy.";
             }
@@ -152,6 +150,10 @@ public class Table {
             if (tank.equals(minion2) == false) {
                 return "Attacked card is not of type 'Tank'.";
             }
+            // tank.setHealth(tank.getHealth() - minion1.getAttackDamage());
+            // if (tank.getHealth() <= 0) {
+            //     eliminateCard(x2, y2);
+            // }
         }
 
         int newHealth = minion2.getHealth() - minion1.getAttackDamage();
@@ -164,6 +166,65 @@ public class Table {
         return null;
     }
 
+    public String cardAbility(int x1, int y1, int x2, int y2) {
+        Minion card1 = getCard(x1, y1);
+        Minion card2 = getCard(x2, y2);
+
+        if (card1 == null || card2 == null) {
+            return "card is null";
+        }
+
+        if (card1.isFrozen() == true) {
+            return "Attacker card is frozen.";
+        }
+
+        if (card1.getDoneAttack() == 1) {
+            return "Attacker card has already attacked this turn.";
+        }
+        Minion tank = null;
+        if (x1 == 0 || x1 == 1) {
+            if (card1.getName().equals("Disciple") == true) {
+                if (x2 == 2 || x2 == 3) {
+                    return "Attacked card does not belong to the current player.";
+                }
+                card1.useAbility(card2);
+                return null;
+            } else {
+                if (x2 == 0 || x2 == 1) {
+                    return "Attacked card does not belong to the enemy.";
+                }
+            }
+            tank = checkTank(2);
+        } else {
+            if (card1.getName().equals("Disciple") == true) {
+                if (x2 == 0 || x2 == 1) {
+                    return "Attacked card does not belong to the current player.";
+                }
+                card1.useAbility(card2);
+                return null;
+            } else {
+                if (x2 == 2 || x2 == 3) {
+                    return "Attacked card does not belong to the enemy.";
+                }
+            }
+            tank = checkTank(1);
+        }
+
+        if (tank != null) {
+            if (tank.equals(card2) == false) {
+                return "Attacked card is not of type 'Tank'.";
+            }
+        }
+
+        card1.useAbility(card2);
+        if (card2.getHealth() <= 0) {
+            eliminateCard(x2, y2);
+        }
+        return null;
+    }
+
+
+
     public void showCards(ArrayNode output) {
         for (int i = 0; i < number_rows; i++) {
             for (int j = 0; j < number_columns; j++) {
@@ -175,8 +236,17 @@ public class Table {
         }
     }
 
-    public void setMinions() {
-        for (int i = 0; i < 4; i++) {
+    public void setMinions(int id) {
+        int start = 0;
+        int max = 0;
+        if (id == 1) {
+            start = 2;
+            max = 4;
+        } else {
+            start = 0;
+            max = 2;
+        }
+        for (int i = start; i < max; i++) {
             for (int j = 0; j < 5; j++) {
                 if (table.get(i).get(j) != null) {
                     table.get(i).get(j).setDoneAttack(0);
